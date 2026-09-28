@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Controle</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell">
+    <div class="admin-top">
+      <div>
+        <div class="mini-brand">DIN DIN</div>
+        <h1>Painel de Controle</h1>
+        <p>Toque em um sabor para alternar entre <b>Disponível</b> e <b>Esgotado</b>.</p>
+      </div>
+      <a href="tv.html" class="small-button">📺 Ver TV</a>
+    </div>
+
+    <div id="connection" class="connection demo">Modo demonstração • alterações ficam salvas neste navegador</div>
+
+    <div class="admin-actions">
+      <button id="allAvailable" class="action available">✓ Liberar todos</button>
+      <button id="allSoldOut" class="action soldout">✕ Esgotar todos</button>
+      <button id="resetDemo" class="action neutral">↺ Restaurar demonstração</button>
+    </div>
+
+    <section id="adminList" class="admin-list"></section>
+
+    <div class="help-box">
+      <h2>Quando estiver pronto para usar na TV</h2>
+      <p>O modo demonstração é apenas para testar. Depois de criar o banco no Firebase e preencher <b>firebase-config.js</b>, este mesmo painel poderá controlar a TV pela internet.</p>
+    </div>
+  </main>
+  <footer>Cardápio Digital • HTML feito por Nathan</footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
