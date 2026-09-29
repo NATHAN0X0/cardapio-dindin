@@ -1,21 +1,11 @@
-// CONFIGURAÇÃO DO FIREBASE
-// 1. Crie um projeto em https://console.firebase.google.com/
-// 2. Adicione um aplicativo Web ao projeto.
-// 3. Ative Realtime Database.
-// 4. Copie o objeto firebaseConfig fornecido pelo Firebase para dentro deste arquivo.
-//
-// Enquanto os campos abaixo estiverem vazios, o site funciona em MODO DEMONSTRAÇÃO
-// usando o armazenamento local do navegador.
-
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  databaseURL: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyA3reKtQphAfOJUE2bFI9X403jrAPfWPwg",
+  authDomain: "cardapio-dindin.firebaseapp.com",
+  databaseURL: "https://cardapio-dindin-default-rtdb.firebaseio.com",
+  projectId: "cardapio-dindin",
+  storageBucket: "cardapio-dindin.firebasestorage.app",
+  messagingSenderId: "604377597617",
+  appId: "1:604377597617:web:367174571d918d2c164490"
 };
-
 export const firebaseEnabled =
   Object.values(firebaseConfig).every(value => String(value).trim() !== "");

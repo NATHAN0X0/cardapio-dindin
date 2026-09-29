@@ -25,6 +25,8 @@ const defaultState = Object.fromEntries(FLAVORS.map(([id]) => [id, true]));
 
 let state = loadDemoState();
 let remote = null;
+let authRemote = null;
+let currentUser = null;
 
 const menuEl = document.querySelector("#menu");
 const adminListEl = document.querySelector("#adminList");
@@ -144,32 +146,100 @@ async function connectFirebase() {
   }
 
   try {
-    const [{ initializeApp }, database] = await Promise.all([
+    const [{ initializeApp }, database, authModule] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js")
+      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js"),
+      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js")
     ]);
 
     const { getDatabase, ref, onValue, set } = database;
+    const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } = authModule;
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const auth = getAuth(app);
 
     remote = { db, ref, onValue, set };
+    authRemote = { auth, signInWithEmailAndPassword, onAuthStateChanged, signOut };
 
     onValue(ref(db, "flavors"), snapshot => {
       const remoteState = snapshot.val() || {};
       state = { ...defaultState, ...remoteState };
       render();
+    }, error => {
+      console.error(error);
+      connectionEl?.classList.add("error");
+      if (connectionEl) connectionEl.textContent = "Erro ao ler o Firebase";
+    });
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      updateAdminAuthUI();
+    });
+
+    document.querySelector("#loginButton")?.addEventListener("click", async () => {
+      const email = document.querySelector("#loginEmail")?.value.trim();
+      const password = document.querySelector("#loginPassword")?.value;
+      const message = document.querySelector("#authMessage");
+      if (!email || !password) {
+        if (message) message.textContent = "Digite o e-mail e a senha.";
+        return;
+      }
+      try {
+        if (message) message.textContent = "Entrando...";
+        await signInWithEmailAndPassword(auth, email, password);
+        if (message) message.textContent = "Login realizado com sucesso.";
+      } catch (error) {
+        console.error(error);
+        if (message) message.textContent = "E-mail ou senha incorretos.";
+      }
+    });
+
+    document.querySelector("#logoutButton")?.addEventListener("click", async () => {
+      await signOut(auth);
     });
 
     connectionEl?.classList.remove("demo");
     connectionEl?.classList.add("live");
-    if (connectionEl) connectionEl.textContent = "● AO VIVO • sincronização pela internet";
+    if (connectionEl) connectionEl.textContent = "● CONECTADO • sincronização pela internet";
   } catch (error) {
     console.error(error);
     connectionEl?.classList.add("error");
-    if (connectionEl) connectionEl.textContent = "Erro na conexão • usando demonstração";
+    if (connectionEl) connectionEl.textContent = "Erro na conexão com o Firebase";
   }
 }
+
+function updateAdminAuthUI() {
+  const adminControls = document.querySelector("#adminControls");
+  const authBox = document.querySelector("#authBox");
+  const loginButton = document.querySelector("#loginButton");
+  const logoutButton = document.querySelector("#logoutButton");
+  const email = document.querySelector("#loginEmail");
+  const password = document.querySelector("#loginPassword");
+  const message = document.querySelector("#authMessage");
+
+  if (!firebaseEnabled) {
+    adminControls?.removeAttribute("hidden");
+    if (authBox) authBox.hidden = true;
+    return;
+  }
+
+  if (currentUser) {
+    adminControls?.removeAttribute("hidden");
+    if (loginButton) loginButton.hidden = true;
+    if (logoutButton) logoutButton.hidden = false;
+    if (email) email.disabled = true;
+    if (password) password.disabled = true;
+    if (message) message.textContent = `Logado como ${currentUser.email}`;
+  } else {
+    if (adminControls) adminControls.hidden = true;
+    if (loginButton) loginButton.hidden = false;
+    if (logoutButton) logoutButton.hidden = true;
+    if (email) email.disabled = false;
+    if (password) password.disabled = false;
+    if (message) message.textContent = "Faça login para controlar os sabores.";
+  }
+}
+
 
 render();
 connectFirebase();

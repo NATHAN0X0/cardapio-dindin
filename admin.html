@@ -17,8 +17,21 @@
       <a href="tv.html" class="small-button">📺 Ver TV</a>
     </div>
 
+    <div id="authBox" class="help-box" style="margin-bottom:18px;">
+      <h2>Acesso do administrador</h2>
+      <p>Entre com o e-mail e a senha cadastrados no Firebase para controlar os sabores.</p>
+      <div style="display:grid;gap:10px;max-width:520px;">
+        <input id="loginEmail" type="email" placeholder="Seu e-mail" autocomplete="username" style="padding:12px;border-radius:10px;border:1px solid #ccc;font:inherit;">
+        <input id="loginPassword" type="password" placeholder="Sua senha" autocomplete="current-password" style="padding:12px;border-radius:10px;border:1px solid #ccc;font:inherit;">
+        <button id="loginButton" class="action available">Entrar</button>
+        <button id="logoutButton" class="action neutral" hidden>Sair</button>
+        <div id="authMessage" style="font-weight:700;"></div>
+      </div>
+    </div>
+
     <div id="connection" class="connection demo">Modo demonstração • alterações ficam salvas neste navegador</div>
 
+    <div id="adminControls" hidden>
     <div class="admin-actions">
       <button id="allAvailable" class="action available">✓ Liberar todos</button>
       <button id="allSoldOut" class="action soldout">✕ Esgotar todos</button>
@@ -29,7 +42,7 @@
 
     <div class="help-box">
       <h2>Quando estiver pronto para usar na TV</h2>
-      <p>O modo demonstração é apenas para testar. Depois de criar o banco no Firebase e preencher <b>firebase-config.js</b>, este mesmo painel poderá controlar a TV pela internet.</p>
+      <p>Use o login acima para controlar os sabores. As alterações são enviadas ao Firebase e aparecem na TV conectada à internet.</p>
     </div>
   </main>
   <footer>Cardápio Digital • HTML feito por Nathan</footer>
