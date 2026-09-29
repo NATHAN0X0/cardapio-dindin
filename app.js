@@ -11,13 +11,13 @@ const FLAVORS = [
   ["morango", "Morango", "🍓"],
   ["abacaxi", "Abacaxi", "🍍"],
   ["pudim", "Pudim", "🍮"],
-  ["salada-fruta", "Salada de fruta", "🍓"],
-  ["tapioca", "Tapioca", "🥥"],
+  ["salada-fruta", "Salada de fruta", ""],
+  ["tapioca", "Tapioca", ""],
   ["graviola", "Graviola", "🍈"],
-  ["brigadeiro", "Brigadeiro", "🍫"],
+  ["brigadeiro", "Brigadeiro", ""],
   ["banana", "Banana", "🍌"],
   ["amendoim", "Amendoim", "🥜"],
-  ["cupuacu", "Cupuaçu", "🍈"]
+  ["cupuacu", "Cupuaçu", ""]
 ];
 
 const DEMO_KEY = "dindin_status_v1";
