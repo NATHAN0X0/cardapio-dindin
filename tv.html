@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Cardápio - TV</title>
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body class="tv-page">
+  <header class="tv-header">
+    <div>
+      <div class="mini-brand">DIN DIN</div>
+      <h1>Sabores disponíveis</h1>
+    </div>
+    <div class="price">R$ 2,00</div>
+  </header>
+
+  <main>
+    <div id="connection" class="connection demo">Carregando cardápio...</div>
+    <section id="menu" class="menu-grid" aria-label="Cardápio"></section>
+  </main>
+
+  <footer class="tv-footer">
+    <span>R$ 2,00 cada</span>
+    <span id="updated">Aguardando atualização...</span>
+  </footer>
+
+  <script>
+    // Se o arquivo da TV não carregar, não deixa a tela presa em "Modo demonstração".
+    setTimeout(function () {
+      if (!window.__TV_APP_STARTED__) {
+        var connection = document.getElementById("connection");
+        if (connection) {
+          connection.className = "connection error";
+          connection.textContent = "Erro ao carregar o sistema da TV • verifique tv.js no GitHub";
+        }
+      }
+    }, 2500);
+  </script>
+  <script src="tv.js?v=2"></script>
+</body>
+</html>
