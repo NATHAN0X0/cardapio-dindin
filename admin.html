@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel de Controle</title>
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="admin-page">
   <main class="admin-shell">
@@ -29,26 +29,24 @@
       </div>
     </div>
 
-    <div id="connection" class="connection demo">Conectando ao Firebase...</div>
+    <div id="connection" class="connection demo">Modo demonstração • alterações ficam salvas neste navegador</div>
 
     <div id="adminControls" hidden>
-      <div class="admin-actions">
-        <button id="allAvailable" class="action available">✓ Liberar todos</button>
-        <button id="allSoldOut" class="action soldout">✕ Esgotar todos</button>
-        <button id="resetDemo" class="action neutral">↺ Restaurar demonstração</button>
-      </div>
+    <div class="admin-actions">
+      <button id="allAvailable" class="action available">✓ Liberar todos</button>
+      <button id="allSoldOut" class="action soldout">✕ Esgotar todos</button>
+      <button id="resetDemo" class="action neutral">↺ Restaurar demonstração</button>
+    </div>
 
-      <section id="adminList" class="admin-list"></section>
+    <section id="adminList" class="admin-list"></section>
 
-      <div class="help-box">
-        <h2>Quando estiver pronto para usar na TV</h2>
-        <p>Use o login acima para controlar os sabores. As alterações são enviadas ao Firebase e aparecem na TV conectada à internet.</p>
-      </div>
+    <div class="help-box">
+      <h2>Quando estiver pronto para usar na TV</h2>
+      <p>Use o login acima para controlar os sabores. As alterações são enviadas ao Firebase e aparecem na TV conectada à internet.</p>
     </div>
   </main>
-
   <footer>Cardápio Digital • HTML feito por Nathan</footer>
 
-  <script type="module" src="app.js?v=2"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

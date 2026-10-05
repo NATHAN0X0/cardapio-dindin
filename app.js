@@ -11,13 +11,13 @@ const FLAVORS = [
   ["morango", "Morango", "🍓"],
   ["abacaxi", "Abacaxi", "🍍"],
   ["pudim", "Pudim", "🍮"],
-  ["salada-fruta", "Salada de fruta", ""],
-  ["tapioca", "Tapioca", ""],
+  ["salada-fruta", "Salada de fruta", "🍓"],
+  ["tapioca", "Tapioca", "🥥"],
   ["graviola", "Graviola", "🍈"],
-  ["brigadeiro", "Brigadeiro", ""],
+  ["brigadeiro", "Brigadeiro", "🍫"],
   ["banana", "Banana", "🍌"],
   ["amendoim", "Amendoim", "🥜"],
-  ["cupuacu", "Cupuaçu", ""]
+  ["cupuacu", "Cupuaçu", "🍈"]
 ];
 
 const DEMO_KEY = "dindin_status_v1";
@@ -25,20 +25,13 @@ const defaultState = Object.fromEntries(FLAVORS.map(([id]) => [id, true]));
 
 let state = loadDemoState();
 let remote = null;
+let authRemote = null;
 let currentUser = null;
-let firebaseConnected = false;
 
 const menuEl = document.querySelector("#menu");
 const adminListEl = document.querySelector("#adminList");
 const connectionEl = document.querySelector("#connection");
 const updatedEl = document.querySelector("#updated");
-
-function setConnection(type, text) {
-  if (!connectionEl) return;
-  connectionEl.classList.remove("demo", "live", "error");
-  connectionEl.classList.add(type);
-  connectionEl.textContent = text;
-}
 
 function loadDemoState() {
   try {
@@ -64,9 +57,8 @@ function renderTV() {
         <div class="flavor-name">${name}</div>
         <div class="flavor-price">R$ 2,00</div>
         ${available ? "" : `
-          <div class="sold-overlay">
+          <div class="sold-overlay" aria-label="Esgotado">
             <span class="x">✕</span>
-            <span>ESGOTADO</span>
           </div>
         `}
       </article>
@@ -103,94 +95,115 @@ function render() {
   renderAdmin();
 }
 
-async function writeFlavor(id, value) {
-  if (!remote || !firebaseConnected) return;
-  await remote.set(remote.ref(remote.db, `flavors/${id}`), value);
-}
-
 async function toggleFlavor(id) {
-  const previous = state[id] !== false;
-  const next = !previous;
+  state[id] = !state[id];
+  if (!firebaseEnabled) saveDemoState();
 
-  // Em modo demo, grava localmente. No Firebase, o estado local só é confirmado
-  // pelo listener onValue depois que a gravação for aceita.
-  if (!remote || !firebaseConnected) {
-    state[id] = next;
-    saveDemoState();
-    render();
-    return;
+  if (remote) {
+    try {
+      await remote.set(remote.ref(remote.db, `flavors/${id}`), state[id]);
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível salvar no Firebase. Verifique a configuração.");
+    }
   }
-
-  try {
-    await writeFlavor(id, next);
-  } catch (error) {
-    console.error(error);
-    alert("Não foi possível salvar no Firebase. Verifique sua conexão e as regras do Realtime Database.");
-  }
+  render();
 }
 
 async function setAll(value) {
-  if (!remote || !firebaseConnected) {
-    state = Object.fromEntries(FLAVORS.map(([id]) => [id, value]));
-    saveDemoState();
-    render();
-    return;
-  }
+  for (const [id] of FLAVORS) state[id] = value;
+  if (!firebaseEnabled) saveDemoState();
 
-  try {
-    await Promise.all(FLAVORS.map(([id]) => writeFlavor(id, value)));
-  } catch (error) {
-    console.error(error);
-    alert("Não foi possível salvar todos os sabores no Firebase.");
+  if (remote) {
+    try {
+      await Promise.all(
+        FLAVORS.map(([id]) =>
+          remote.set(remote.ref(remote.db, `flavors/${id}`), value)
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível salvar no Firebase. Verifique a configuração.");
+    }
   }
-}
-
-function resetDemo() {
-  state = { ...defaultState };
-  saveDemoState();
   render();
 }
 
 document.querySelector("#allAvailable")?.addEventListener("click", () => setAll(true));
 document.querySelector("#allSoldOut")?.addEventListener("click", () => setAll(false));
-document.querySelector("#resetDemo")?.addEventListener("click", resetDemo);
-
-document.querySelector("#loginButton")?.addEventListener("click", () => login());
-document.querySelector("#loginPassword")?.addEventListener("keydown", event => {
-  if (event.key === "Enter") login();
+document.querySelector("#resetDemo")?.addEventListener("click", () => {
+  state = { ...defaultState };
+  saveDemoState();
+  render();
 });
-document.querySelector("#logoutButton")?.addEventListener("click", () => logout());
 
-let authRemote = null;
-
-async function login() {
-  if (!authRemote) return;
-
-  const email = document.querySelector("#loginEmail")?.value.trim();
-  const password = document.querySelector("#loginPassword")?.value;
-  const message = document.querySelector("#authMessage");
-
-  if (!email || !password) {
-    if (message) message.textContent = "Digite o e-mail e a senha.";
+async function connectFirebase() {
+  if (!firebaseEnabled) {
+    connectionEl?.classList.add("demo");
+    if (connectionEl) connectionEl.textContent = "Modo demonstração • sem sincronização entre aparelhos";
     return;
   }
 
   try {
-    if (message) message.textContent = "Entrando...";
-    await authRemote.signInWithEmailAndPassword(authRemote.auth, email, password);
-    if (message) message.textContent = "Login realizado com sucesso.";
-  } catch (error) {
-    console.error(error);
-    if (message) message.textContent = "E-mail ou senha incorretos.";
-  }
-}
+    const [{ initializeApp }, database, authModule] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js"),
+      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js")
+    ]);
 
-async function logout() {
-  if (!authRemote) return;
-  try {
-    await authRemote.signOut(authRemote.auth);
+    const { getDatabase, ref, onValue, set } = database;
+    const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } = authModule;
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    remote = { db, ref, onValue, set };
+    authRemote = { auth, signInWithEmailAndPassword, onAuthStateChanged, signOut };
+
+    onValue(ref(db, "flavors"), snapshot => {
+      const remoteState = snapshot.val() || {};
+      state = { ...defaultState, ...remoteState };
+      render();
+    }, error => {
+      console.error(error);
+      connectionEl?.classList.add("error");
+      if (connectionEl) connectionEl.textContent = "Erro ao ler o Firebase";
+    });
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      updateAdminAuthUI();
+    });
+
+    document.querySelector("#loginButton")?.addEventListener("click", async () => {
+      const email = document.querySelector("#loginEmail")?.value.trim();
+      const password = document.querySelector("#loginPassword")?.value;
+      const message = document.querySelector("#authMessage");
+      if (!email || !password) {
+        if (message) message.textContent = "Digite o e-mail e a senha.";
+        return;
+      }
+      try {
+        if (message) message.textContent = "Entrando...";
+        await signInWithEmailAndPassword(auth, email, password);
+        if (message) message.textContent = "Login realizado com sucesso.";
+      } catch (error) {
+        console.error(error);
+        if (message) message.textContent = "E-mail ou senha incorretos.";
+      }
+    });
+
+    document.querySelector("#logoutButton")?.addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    connectionEl?.classList.remove("demo");
+    connectionEl?.classList.add("live");
+    if (connectionEl) connectionEl.textContent = "● CONECTADO • sincronização pela internet";
   } catch (error) {
     console.error(error);
+    connectionEl?.classList.add("error");
+    if (connectionEl) connectionEl.textContent = "Erro na conexão com o Firebase";
   }
 }
 
@@ -203,23 +216,21 @@ function updateAdminAuthUI() {
   const password = document.querySelector("#loginPassword");
   const message = document.querySelector("#authMessage");
 
-  if (!adminControls) return;
-
   if (!firebaseEnabled) {
-    adminControls.hidden = false;
+    adminControls?.removeAttribute("hidden");
     if (authBox) authBox.hidden = true;
     return;
   }
 
   if (currentUser) {
-    adminControls.hidden = false;
+    adminControls?.removeAttribute("hidden");
     if (loginButton) loginButton.hidden = true;
     if (logoutButton) logoutButton.hidden = false;
     if (email) email.disabled = true;
     if (password) password.disabled = true;
     if (message) message.textContent = `Logado como ${currentUser.email}`;
   } else {
-    adminControls.hidden = true;
+    if (adminControls) adminControls.hidden = true;
     if (loginButton) loginButton.hidden = false;
     if (logoutButton) logoutButton.hidden = true;
     if (email) email.disabled = false;
@@ -228,57 +239,6 @@ function updateAdminAuthUI() {
   }
 }
 
-async function connectFirebase() {
-  if (!firebaseEnabled) {
-    setConnection("demo", "Modo demonstração • sem sincronização entre aparelhos");
-    updateAdminAuthUI();
-    return;
-  }
-
-  setConnection("demo", "Conectando ao Firebase...");
-
-  try {
-    const [{ initializeApp }, database, authModule] = await Promise.all([
-      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js"),
-      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js")
-    ]);
-
-    const { getDatabase, ref, onValue, set } = database;
-    const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } = authModule;
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
-
-    remote = { db, ref, onValue, set };
-    authRemote = { auth, signInWithEmailAndPassword, signOut };
-
-    onValue(ref(db, "flavors"), snapshot => {
-      const remoteState = snapshot.val() || {};
-      state = { ...defaultState, ...remoteState };
-      firebaseConnected = true;
-      render();
-      setConnection("live", "● CONECTADO • sincronização pela internet");
-    }, error => {
-      console.error(error);
-      firebaseConnected = false;
-      setConnection("error", "Erro ao ler o Firebase • verifique as regras do banco");
-      updateAdminAuthUI();
-    });
-
-    onAuthStateChanged(auth, user => {
-      currentUser = user;
-      updateAdminAuthUI();
-    });
-  } catch (error) {
-    console.error(error);
-    firebaseConnected = false;
-    setConnection("error", "Erro na conexão com o Firebase");
-    updateAdminAuthUI();
-  }
-}
 
 render();
-updateAdminAuthUI();
 connectFirebase();
