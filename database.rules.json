@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "flavors": {
+      ".read": true,
+      ".write": "auth != null",
+      "$flavor": {
+        ".validate": "newData.isBoolean()"
+      }
+    }
+  }
+}
