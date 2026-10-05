@@ -1,0 +1,96 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff8e9;
+  color: #171717;
+  overflow-x: hidden;
+}
+.tv-page { padding: 14px 18px 0; }
+.tv-header {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 12px;
+}
+.mini-brand { font-weight: bold; letter-spacing: 3px; color: #e31b23; font-size: 18px; }
+.tv-header h1 { margin: 2px 0 0; font-size: 38px; line-height: 1.05; }
+.price { background: #e31b23; color: #fff; padding: 10px 18px; border-radius: 28px; font-size: 28px; font-weight: bold; white-space: nowrap; }
+.connection { width: max-content; max-width: 100%; margin: 0 auto 10px; padding: 5px 10px; border-radius: 16px; background: #eee; color: #666; font-size: 12px; }
+.connection.live { background: #dff7e6; color: #16833a; }
+.connection.error { background: #ffe1e1; color: #a00; }
+.menu-grid {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+}
+.flavor-card {
+  position: relative;
+  width: 23.5%;
+  height: 175px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background: #fff;
+  border: 3px solid #fff;
+  border-radius: 18px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px;
+}
+.flavor-icon { font-size: 54px; line-height: 1; margin-bottom: 7px; }
+.flavor-name { font-weight: bold; font-size: 24px; line-height: 1.05; }
+.flavor-price { margin-top: 5px; color: #e31b23; font-weight: bold; font-size: 19px; }
+.sold-overlay {
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.48);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sold-x {
+  color: #ff1f1f;
+  font-size: 120px;
+  line-height: 1;
+  font-weight: bold;
+  text-shadow: 0 2px 7px rgba(0,0,0,.7);
+  transform: rotate(-8deg);
+}
+.tv-footer {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 3px 0 10px;
+  display: flex;
+  justify-content: space-between;
+  color: #777;
+  font-size: 12px;
+}
+@media (orientation: portrait) {
+  .tv-page { padding: 10px 12px 0; }
+  .tv-header h1 { font-size: 28px; }
+  .mini-brand { font-size: 14px; }
+  .price { font-size: 22px; padding: 8px 13px; }
+  .flavor-card { width: 48.5%; height: 145px; margin-bottom: 9px; border-radius: 14px; }
+  .flavor-icon { font-size: 42px; margin-bottom: 5px; }
+  .flavor-name { font-size: 19px; }
+  .flavor-price { font-size: 16px; }
+  .sold-x { font-size: 100px; }
+}
+@media (max-width: 700px) {
+  .tv-header h1 { font-size: 25px; }
+  .flavor-card { height: 135px; }
+  .flavor-name { font-size: 17px; }
+}
