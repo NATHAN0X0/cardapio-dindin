@@ -2,10 +2,10 @@ import { firebaseConfig, firebaseEnabled } from "./firebase-config.js";
 
 const FLAVORS = [
   ["chocolate", "Chocolate", "🍫"],
-  ["buriti", "Buriti", "🫐"],
-  ["maracuja", "Maracujá", "🥭"],
+  ["buriti", "Buriti", ""],
+  ["maracuja", "Maracujá", ""],
   ["abacate", "Abacate", "🥑"],
-  ["acai", "Açaí", "🫐"],
+  ["acai", "Açaí", ""],
   ["coco", "Coco", "🥥"],
   ["uva", "Uva", "🍇"],
   ["morango", "Morango", "🍓"],
